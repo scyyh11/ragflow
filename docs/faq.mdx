@@ -611,7 +611,7 @@ This method uses PaddleOCR's official API service with an access token.
    - Configure the following fields:
       - **PaddleOCR API URL**: The API base URL, such as `https://paddleocr.aistudio-app.com/api`, without the `/v2/ocr/jobs` suffix
       - **AI Studio Access Token**: Your access token for the PaddleOCR API
-   - Select or add the model you want to use (such as `PaddleOCR-VL-1.6` or `PP-StructureV3`)
+   - Select or add the model you want to use (such as `PaddleOCR-VL-1.8`, `PaddleOCR-VL-1.6`, or `PP-StructureV3`). Choose a model available on your API endpoint.
 
 **Step 2: Usage in Dataset Configuration**
 
@@ -640,7 +640,7 @@ Provide a PaddleOCR service reachable from the RAGFlow container. For a synchron
 http://host.docker.internal:8080
 ```
 
-Enter the base URL without the `/layout-parsing` suffix because the Go provider appends it when sending the request.
+Enter the base URL without the `/layout-parsing` suffix because the Go provider appends it when sending the request. For PaddleOCR-VL-1.8, point the provider at a service already running the 1.8 pipeline; the model name in RAGFlow does not switch the pipeline on that server.
 
 **Step 2: Configure RAGFlow**
 

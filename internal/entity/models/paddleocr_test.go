@@ -498,6 +498,7 @@ func TestPaddleOCRDriversPreserveLayout(t *testing.T) {
 	}
 	for _, local := range []bool{false, true} {
 		t.Run(fmt.Sprintf("local=%v", local), func(t *testing.T) {
+			model, token := "PaddleOCR-VL-1.8", "test-token"
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.Header().Set("Content-Type", "application/json")
 				switch {
@@ -505,6 +506,9 @@ func TestPaddleOCRDriversPreserveLayout(t *testing.T) {
 					var request map[string]any
 					if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 						t.Error(err)
+					}
+					if _, ok := request["model"]; ok {
+						t.Error("self-hosted requests must use the pipeline already configured on the server")
 					}
 					for _, key := range []string{"useDocOrientationClassify", "useDocUnwarping"} {
 						if request[key] != false {
@@ -517,6 +521,9 @@ func TestPaddleOCRDriversPreserveLayout(t *testing.T) {
 					json.Unmarshal(body, &obj)
 					json.NewEncoder(w).Encode(obj)
 				case r.Method == http.MethodPost:
+					if got := r.FormValue("model"); got != model {
+						t.Errorf("submitted model = %q, want %q", got, model)
+					}
 					fmt.Fprint(w, `{"data":{"jobId":"layout"}}`)
 				default:
 					fmt.Fprintf(w, `{"data":{"state":"done","resultUrl":{"jsonUrl":%q}}}`, "http://"+r.Host+"/result")
@@ -527,7 +534,6 @@ func TestPaddleOCRDriversPreserveLayout(t *testing.T) {
 			if local {
 				driver = NewPaddleOCRLocalModel(nil, URLSuffix{OCR: "layout-parsing"})
 			}
-			model, token := "PaddleOCR-VL-1.6", "test-token"
 			response, err := driver.OCRFile(t.Context(), &model, []byte("%PDF-1.4"), nil, &APIConfig{BaseURL: &server.URL, ApiKey: &token}, nil, nil)
 			if err != nil {
 				t.Fatal(err)

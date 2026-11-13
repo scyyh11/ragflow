@@ -16,6 +16,13 @@
       ]
     },
     {
+      "name": "PaddleOCR-VL-1.8",
+      "max_tokens": 16384,
+      "model_types": [
+        "ocr"
+      ]
+    },
+    {
       "name": "PaddleOCR-VL-1.5",
       "max_tokens": 16384,
       "model_types": [
